@@ -1,0 +1,18 @@
+use strict;
+use warnings;
+use Module::Build;
+
+my $builder = Module::Build->new(
+    module_name         => 'Math::Primality',
+    license             => 'perl',
+    dist_author         => 'Jonathan Leto <jonathan@leto.net>',
+    dist_version_from   => 'lib/Math/Primality.pm',
+    build_requires => {
+        'Test::More' => 0,
+        'Math::GMPz' => 0.26,
+    },
+    add_to_cleanup      => [ 'Math::Primality-*' ],
+    create_makefile_pl  => 'traditional',
+);
+
+$builder->create_build_script();

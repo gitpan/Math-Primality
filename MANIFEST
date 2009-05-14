@@ -1,0 +1,9 @@
+Build.PL
+Changes
+MANIFEST
+README
+lib/Math/Primality.pm
+t/00-load.t
+t/pod.t
+Makefile.PL
+META.yml
