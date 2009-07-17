@@ -6,11 +6,15 @@ WriteMakefile
           'VERSION_FROM' => 'lib/Math/Primality.pm',
           'PREREQ_PM' => {
                            'Math::GMPz' => '0.26',
+                           'Test::Exception' => 0,
                            'Test::More' => 0
                          },
           'INSTALLDIRS' => 'site',
           'EXE_FILES' => [
-                           'bin/enumerate_strong_pseudoprime.pl'
+                           'bin/.enumerate_strong_pseudoprime.pl.swp',
+                           'bin/.primes.pl.swp',
+                           'bin/primes.pl',
+                           'bin/strong_psuedoprimes.pl'
                          ]
         )
 ;

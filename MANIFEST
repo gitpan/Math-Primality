@@ -1,8 +1,11 @@
-bin/enumerate_strong_pseudoprime.pl
+bench/small_primes
+bin/primes.pl
+bin/strong_psuedoprimes.pl
 Build.PL
 Changes
 CREDITS
 examples/is_strong
+examples/project_euler/10/project_euler_10.pl
 lib/Math/Primality.pm
 Makefile.PL
 MANIFEST			This list of files
@@ -16,7 +19,16 @@ spec/bpsw/trn.c
 spec/bpsw/trn.h
 t/00-load.t
 t/boilerplate.t
+t/is_prime.t
 t/is_pseudoprime.t
+t/is_strong_lucas_pseudoprime.t
 t/is_strong_pseudoprime.t
+t/next_prime.t
 t/pod.t
+t/prev_prime.t
+t/prime_count.t
+xt/verify_is_prime.t
+xt/verify_is_prime_long.t
+xt/verify_next_prime_long.t
+xt/verify_prime_count.t
 xt/verify_strong.t
