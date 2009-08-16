@@ -6,64 +6,66 @@ use Math::GMPz qw/:mpz/;
 use base 'Exporter';
 use Carp qw/croak/;
 my %small_primes = (
-    2   => 1,
-    3   => 1,
-    5   => 1,
-    7   => 1,
-    11  => 1,
-    13  => 1,
-    17  => 1,
-    19  => 1,
-    23  => 1,
-    29  => 1,
-    31  => 1,
-    37  => 1,
-    41  => 1,
-    43  => 1,
-    47  => 1,
-    53  => 1,
-    59  => 1,
-    61  => 1,
-    67  => 1,
-    71  => 1,
-    73  => 1,
-    79  => 1,
-    83  => 1,
-    89  => 1,
-    97  => 1,
-    101 => 1,
-    103 => 1,
-    107 => 1,
-    109 => 1,
-    113 => 1,
-    127 => 1,
-    131 => 1,
-    137 => 1,
-    139 => 1,
-    149 => 1,
-    151 => 1,
-    157 => 1,
-    163 => 1,
-    167 => 1,
-    173 => 1,
-    179 => 1,
-    181 => 1,
-    191 => 1,
-    193 => 1,
-    197 => 1,
-    199 => 1,
-    211 => 1,
-    223 => 1,
-    227 => 1,
-    229 => 1,
-    233 => 1,
-    239 => 1,
-    241 => 1,
-    251 => 1,
-    257 => 1,
+    2   => 2,
+    3   => 2,
+    5   => 2,
+    7   => 2,
+    11  => 2,
+    13  => 2,
+    17  => 2,
+    19  => 2,
+    23  => 2,
+    29  => 2,
+    31  => 2,
+    37  => 2,
+    41  => 2,
+    43  => 2,
+    47  => 2,
+    53  => 2,
+    59  => 2,
+    61  => 2,
+    67  => 2,
+    71  => 2,
+    73  => 2,
+    79  => 2,
+    83  => 2,
+    89  => 2,
+    97  => 2,
+    101 => 2,
+    103 => 2,
+    107 => 2,
+    109 => 2,
+    113 => 2,
+    127 => 2,
+    131 => 2,
+    137 => 2,
+    139 => 2,
+    149 => 2,
+    151 => 2,
+    157 => 2,
+    163 => 2,
+    167 => 2,
+    173 => 2,
+    179 => 2,
+    181 => 2,
+    191 => 2,
+    193 => 2,
+    197 => 2,
+    199 => 2,
+    211 => 2,
+    223 => 2,
+    227 => 2,
+    229 => 2,
+    233 => 2,
+    239 => 2,
+    241 => 2,
+    251 => 2,
+    257 => 2,
 );
 
-our $DEBUG = 0;
+use constant
+	DEBUG => 0
+;
 
 use constant GMP => 'Math::GMPz';
 
@@ -98,11 +100,9 @@ our %EXPORT_TAGS = ( all => \@EXPORT_OK );
 
 =head1 DESCRIPTION
 
-Math::Primality implements is_prime() and next_prime() as a replacement for Math::PARI::is_prime().  It uses the GMP library through Math::GMPz.  The is_prime() method is actually a Baillie-PSW primality test which consists of three steps:
+Math::Primality implements is_prime() and next_prime() as a replacement for Math::PARI::is_prime().  It uses the GMP library through Math::GMPz.  The is_prime() method is actually a Baillie-PSW primality test which consists of two steps:
 
 =over 4
-
-=item * Check N for small prime divisors p < 1000
 
 =item * Perform a strong Miller-Rabin probable prime test (base 2) on N
 
@@ -110,7 +110,7 @@ Math::Primality implements is_prime() and next_prime() as a replacement for Math
 
 =back
 
-At any point the function may return as definitely composite.  If not, N has passed the strong Baillie-PSW test and is either prime or a strong Baillie-PSW pseudoprime.  To date no counterexample (Baillie-PSW strong pseudoprime) is known to exist for N < 10^15.  Baillie-PSW requires O((log n)^3) bit operations.  See L<http://www.trnicely.net/misc/bpsw.html> for a more thorough introduction to the Baillie-PSW test. Also see L<http://mpqs.free.fr/LucasPseudoprimes.pdf> for a more theoretical introduction to the Baillie-PSW test. 
+At any point the function may return 2 which means N is definitely composite.  If not, N has passed the strong Baillie-PSW test and is either prime or a strong Baillie-PSW pseudoprime.  To date no counterexample (Baillie-PSW strong pseudoprime) is known to exist for N < 10^15.  Baillie-PSW requires O((log n)^3) bit operations.  See L<http://www.trnicely.net/misc/bpsw.html> for a more thorough introduction to the Baillie-PSW test. Also see L<http://mpqs.free.fr/LucasPseudoprimes.pdf> for a more theoretical introduction to the Baillie-PSW test. 
 
 =head1 EXPORT
 
@@ -144,32 +144,28 @@ sub is_pseudoprime($;$)
     $base   = GMP->new($base);
     $n      = GMP->new($n);
 
-    # if $n and $base are not coprime, than $base is a factor of $n
-    # $base > 2 && ( Math::BigInt::bgcd($n,$base) != 1 ) && return 0;
+    my $m    = GMP->new();
+    Rmpz_sub_ui($m, $n, 1);              # $m = $n - 1
 
-    my $m   = _copy($n);
-    Rmpz_sub_ui($m, $m, 1);              # m = n - 1
-
-    my $mod = _copy($base);
-    Rmpz_powm($mod, $base, $m, $n );
+    my $mod = GMP->new();
+    Rmpz_powm($mod, $base, $m, $n );     # $mod = ($base ^ $m) mod $n 
     return ! Rmpz_cmp_ui($mod, 1);       # pseudoprime if $mod = 1
 }
 
-sub is_small_prime
+# checks if $n is in %small_primes
+# private functions expect a Math::GMPz object
+sub _is_small_prime
 {
     my $n = shift;
-    return $small_primes{$n} ? 1 : 0;
+    $n = Rmpz_get_ui($n);
+    return $small_primes{$n} ? 2 : 0;
 
 }
 
 sub debug {
-    warn $_[0] if $ENV{DEBUG} or $DEBUG;
-}
-
-sub _copy($)
-{
-    my ($n) = @_;
-    return GMP->new($n);
+    if ( DEBUG ) {
+      warn $_[0];
+    }
 }
 
 =head2 is_strong_pseudoprime($n,$b)
@@ -199,7 +195,7 @@ A strong pseudoprime to $base is an odd number $n with ($n - 1) = $d * 2^$s that
 
 =head3 Notes
 
-$s and $d are calculated with the helper function _find_s_d() and the second condition is checked by sucessive squaring $base^$d and reducing that mod $n.
+The second condition is checked by sucessive squaring $base^$d and reducing that mod $n.
 
 =cut
 
@@ -216,41 +212,41 @@ sub is_strong_pseudoprime($;$)
     my $cmp = _check_two_and_even($n);
     return $cmp if $cmp != 2;
 
-    my $m   = _copy($n);
-    Rmpz_sub_ui($m,$m,1);
+    my $m   = GMP->new();
+    Rmpz_sub_ui($m,$n,1);              # $m = $n - 1
 
     my ($s,$d) = _find_s_d($m);
-    debug "m=$m, s=$s, d=$d";
+    debug "m=$m, s=$s, d=$d" if DEBUG;
 
-    my $residue = GMP->new(0);
-    Rmpz_powm($residue, $base,$d, $n);
-    debug "$base^$d % $n = $residue";
+    my $residue = GMP->new();
+    Rmpz_powm($residue, $base,$d, $n); # $residue = ($base ^ $d) mod $n
+    debug "$base^$d % $n = $residue" if DEBUG;
 
     # if $base^$d = +-1 (mod $n) , $n is a strong pseudoprime
 
-    if ( Rmpz_cmp_ui( $residue,1) == 0 ) {
-        debug "found $n as spsp since $base^$d % $n == $residue == 1\n";
+    if ( Rmpz_cmp_ui($residue,1) == 0 ) {
+        debug "found $n as spsp since $base^$d % $n == $residue == 1\n" if DEBUG;
         return 1;
     }
 
     if ( Rmpz_cmp($residue,$m) == 0 ) {
-        debug "found $n as spsp since $base^$d % $n == $residue == $m\n";
+        debug "found $n as spsp since $base^$d % $n == $residue == $m\n" if DEBUG;
         return 1;
     }
 
     map {
         # successively square $residue, $n is a strong psuedoprime
         # if any of these are congruent to -1 (mod $n)
-        Rmpz_mul($residue,$residue,$residue);
-        debug "$_: r=$residue";
+        Rmpz_mul($residue,$residue,$residue);   # $residue = $residue * $residue
+        debug "$_: r=$residue" if DEBUG;
 
-        my $mod = _copy($residue);
-        Rmpz_mod($mod, $mod,$n);
-        debug "$_:$residue % $n = $mod ";
+        my $mod = GMP->new();
+        Rmpz_mod($mod, $residue, $n);           # $mod = $residue mod $n
+        debug "$_:$residue % $n = $mod " if DEBUG;
         $mod = Rmpz_cmp($mod, $m);
 
         if ($mod == 0) {
-            debug "$_:$mod == $m => spsp!";
+            debug "$_:$mod == $m => spsp!" if DEBUG;
             return 1;
         }
     } ( 1 .. $s-1 );
@@ -259,11 +255,12 @@ sub is_strong_pseudoprime($;$)
 }
 
 # given an odd number N find (s, d) such that N = d * 2^s + 1
+# private functions expect a Math::GMPz object
 sub _find_s_d($)
 {
-    my $m   = GMP->new($_[0]);
+    my $m   = $_[0];
     my $s   = Rmpz_scan1($m,1);
-    my $d   = GMP->new(0);
+    my $d   = GMP->new();
     Rmpz_tdiv_q_2exp($d,$m,$s);
     return ($s,$d);
 }
@@ -307,8 +304,6 @@ Then a strong Lucas-Selfridge pseudoprime is an odd, non-perfect square number $
 =head3 Notes
 
 ($d/$n) refers to the Legendre symbol.
-The tuple ($D, $P, $Q) is determined by the helper function _find_dpq_selfridge(). 
-$d and $s are determined by the helper function _find_s_d().
 
 =cut
 
@@ -316,10 +311,10 @@ sub is_strong_lucas_pseudoprime($)
 {
     my ($n) = @_;
     $n      = GMP->new($n);
-    # we also need to weed out all N < 3 and all even N 
+    # we also need to handle all N < 3 and all even N 
     my $cmp = _check_two_and_even($n);
     return $cmp if $cmp != 2;
-    # weed out all perfect squares
+    # handle all perfect squares
     if ( Rmpz_perfect_square_p($n) ) {
         return 0;
     }
@@ -328,17 +323,17 @@ sub is_strong_lucas_pseudoprime($)
     if ($D == 0) {  #_find_dpq_selfridge found a factor of N
       return 0;
     }
-    my $m = _copy($n);
-    Rmpz_add_ui($m, $m, 1);
+    my $m = GMP->new();
+    Rmpz_add_ui($m, $n, 1);  # $m = $n + 1
 
-    # determine s and d such that m = d * 2^s + 1
+    # determine $s and $d such that $m = $d * 2^$s + 1
     my ($s,$d) = _find_s_d($m);
     # compute U_d and V_d
-    # initalize U, V, U_2m, V_2m
-    my $U = GMP->new(1);     # U = U_1 = 1
-    my $V = GMP->new($P);    # V = V_1 = P
-    my $U_2m = GMP->new(1);  # U_2m = U_1
-    my $V_2m = GMP->new($P); # V_2m = P
+    # initalize $U, $V, $U_2m, $V_2m
+    my $U = GMP->new(1);     # $U = U_1 = 1
+    my $V = GMP->new($P);    # $V = V_1 = P
+    my $U_2m = GMP->new(1);  # $U_2m = U_1
+    my $V_2m = GMP->new($P); # $V_2m = P
     # initalize Q values (eventually need to calculate Q^d, which will be used in later stages of test)
     my $Q_m = GMP->new($Q);
     my $Q2_m = GMP->new(2 * $Q);  # Really 2Q_m, but perl will barf with a variable named like that
@@ -358,13 +353,13 @@ sub is_strong_lucas_pseudoprime($)
       Rmpz_mul($Q_m, $Q_m, $Q_m);     # Q_m = Q_m * Q_m
       Rmpz_mod($Q_m, $Q_m, $n);       # Q_m = Q_m mod N
       Rmpz_mul_2exp($Q2_m, $Q_m, 1);  # 2Q_m = Q_m * 2
-      if (Rmpz_tstbit($d, $i)) {       # if bit i of d is set
+      if (Rmpz_tstbit($d, $i)) {      # if bit i of d is set
         # add some indicies
         # initalize some temporary variables
-        my $T1 = GMP->new(0);
-        my $T2 = GMP->new(0);
-        my $T3 = GMP->new(0);
-        my $T4 = GMP->new(0);
+        my $T1 = GMP->new();
+        my $T2 = GMP->new();
+        my $T3 = GMP->new();
+        my $T4 = GMP->new();
         # this is how we do it
         # U_(m+n) = (U_m * V_n + U_n * V_m) / 2
         # V_(m+n) = (V_m * V_n + D * U_m * U_n) / 2
@@ -419,10 +414,11 @@ sub is_strong_lucas_pseudoprime($)
 }
 
 # selfridge's method for finding the tuple (D,P,Q) for is_strong_lucas_pseudoprime
+# private functions expect a Math::GMPz object
 sub _find_dpq_selfridge($) {
-  my $n = GMP->new($_[0]);
+  my $n = $_[0];
   my ($d,$sign,$wd) = (5,1,0);
-  my $gcd = Math::GMPz->new;
+  my $gcd = GMP->new;
 
   # determine D
   while (1) {
@@ -430,20 +426,17 @@ sub _find_dpq_selfridge($) {
 
     Rmpz_gcd_ui($gcd, $n, abs $wd);
     if ($gcd > 1 && Rmpz_cmp($n, $gcd) > 0) {
-      debug "1 < $gcd < $n => $n is composite with factor $wd";
+      debug "1 < $gcd < $n => $n is composite with factor $wd" if DEBUG;
       return 0;
     }
     my $j = Rmpz_jacobi(GMP->new($wd), $n);
     if ($j == -1) {
-      debug "Rmpz_jacobi($wd, $n) == -1 => found D";
+      debug "Rmpz_jacobi($wd, $n) == -1 => found D" if DEBUG;
       last; 
     }
     # didn't find D, increment and swap sign
     $d += 2;
     $sign = -$sign;
-    ### TODO ###
-    # need code to make sure we don't overflow $d, may never actually happen
-    ### TODO ###
   }
   # P = 1
   my ($p,$q) = (1,0);
@@ -452,16 +445,17 @@ sub _find_dpq_selfridge($) {
       # Q = (1 - D) / 4
       $q = (1 - $wd) / 4;
   }
-  debug "found P and Q: ($p, $q)";
+  debug "found P and Q: ($p, $q)" if DEBUG;
   return ($wd, $p, $q);
 }
 
 # method returns 0 if N < two or even, returns 1 if N == 2
 # returns 2 if N > 2 and odd
+# private functions expect a Math::GMPz object
 sub _check_two_and_even($) {
-  my $n = GMP->new($_[0]);
+  my $n = $_[0];
 
-  my $cmp = Rmpz_cmp_ui($n, 2 );
+  my $cmp = Rmpz_cmp_ui($n, 2);
   return 1 if $cmp == 0;
   return 0 if $cmp < 0;
   return 0 if Rmpz_even_p($n);
@@ -470,7 +464,7 @@ sub _check_two_and_even($) {
 
 =head2 is_prime($n)
 
-Returns true if number is prime, false if number is composite.
+Returns 2 if $n is definitely prime, 1 is $n is a probable prime, 0 if $n is composite.
 
     if ( is_prime($n) ) {
         # it's a prime
@@ -482,39 +476,45 @@ Returns true if number is prime, false if number is composite.
 
 is_prime() is implemented using the BPSW algorithim which is a combination of two probable-prime 
 algorithims, the strong Miller-Rabin test and the strong Lucas-Selfridge test.  While no
-psuedoprime has been found for N < 10^15, this does not mean there is not a pseudoprime.
+psuedoprime has been found for N < 10^15, this does not mean there is not a pseudoprime. A 
+possible improvement would be to instead implement the AKS test which runs in quadratic time and 
+is deterministic with no false-positives.
 
 =head3 Notes
 
 The strong Miller-Rabin test is implemented by is_strong_pseudoprime(). The strong Lucas-Selfridge test is implemented
 by is_strong_lucas_pseudoprime().
 
-=cut
+We have implemented some optimizations.  We have an array of small primes to check all $n <= 257. According to 
+L<http://primes.utm.edu/prove/prove2_3.html> if $n < 9,080,191 is a both a base-31 and a base-73 strong pseudoprime,
+ then $n is prime. If $n < 4,759,123,141 is a base-2, base-7 and base-61 strong pseudoprime, then $n is prime.
 
-# If n < 9,080,191 is a both 31 and 73-SPRP, then n is prime.
-# If n < 4,759,123,141 is a 2, 7 and 61-SPRP, then n is prime.
-# http://primes.utm.edu/prove/prove2_3.html
+=cut
 
 sub is_prime($) {
     my $n = shift;
+    $n = GMP->new($n);
 
-    if ($n <= 257) {
-        return is_small_prime($n);
-    } elsif ( $n < 9_080_191 ) {
+    if (Rmpz_cmp_ui($n, 2) == -1) {
+        return 0;
+    }
+    if (Rmpz_cmp_ui($n, 257) == -1) {
+        return _is_small_prime($n);
+    } elsif ( Rmpz_cmp_ui($n, 9_080_191) == -1 ) {
         return 0 unless is_strong_pseudoprime($n,31);
         return 0 unless is_strong_pseudoprime($n,73);
-        return 1;
-    } elsif ( $n < 4_759_123_141 ) {
+        return 2;
+    } elsif ( Rmpz_cmp_ui($n, 4_759_123_141) == -1 ) {
         return 0 unless is_strong_pseudoprime($n,2);
         return 0 unless is_strong_pseudoprime($n,7);
         return 0 unless is_strong_pseudoprime($n,61);
-        return 1;
+        return 2;
     }
-    # the lucas test is stronger so do it first
-    return is_strong_lucas_pseudoprime($n) && is_strong_pseudoprime($n,2);
+    # the strong_pseudoprime test is quicker, do it first
+    return is_strong_pseudoprime($n,2) && is_strong_lucas_pseudoprime($n);
 }
 
-=head2 next_prime($x)
+=head2 next_prime($n)
 
 Given a number, produces the next prime number.
 
@@ -548,7 +548,7 @@ sub next_prime($) {
   }
 }
 
-=head2 prev_prime($x)
+=head2 prev_prime($n)
 
 Given a number, produces the previous prime number.
 
@@ -567,9 +567,9 @@ Checking of primality is implemented by is_prime()
 sub prev_prime($) {
   my $n = GMP->new($_[0]);
   my $cmp = Rmpz_cmp_ui($n, 3);   # compare N with 3
-  if ($cmp == 0) {                # N = 0
+  if ($cmp == 0) {                # N = 3
     return GMP->new(2);
-  } elsif ($cmp < 0) {            # N < 0
+  } elsif ($cmp < 0) {            # N < 3
     return undef;
   } else {
     if (Rmpz_odd_p($n)) {         # if N is odd
@@ -587,8 +587,21 @@ sub prev_prime($) {
 
 =head2 prime_count($n)
 
-Returns the count of the number of primes less than or equal to $n. This is the
-prime counting function.
+Returns the number of primes less than or equal to $n.
+
+    my $count = prime_count(1000);          # $count = 168
+    my $bigger_count = prime_count(10000);  # $bigger_count = 1229
+
+=head3 Details
+
+This is implemented with a simple for loop.  The Meissel, Lehmer, Lagarias, Miller,
+Odlyzko method is considerably faster.  A paper can be found at 
+L<http://www.ams.org/mcom/1996-65-213/S0025-5718-96-00674-6/S0025-5718-96-00674-6.pdf>
+that describes this method in rigorous detail.
+
+=head3 Notes
+
+Checking of primality is implemented by is_prime()
 
 =cut
 
@@ -604,9 +617,10 @@ sub prime_count($) {
 }
 
 
-=head1 AUTHOR
+=head1 AUTHORS
 
 Jonathan Leto, C<< <jonathan at leto.net> >>
+Bob Kuo, C<< <bobjkuo at gmail.com> >>
 
 =head1 BUGS
 
@@ -624,6 +638,8 @@ bpsw1.zip by Thomas R. Nicely, available at http://www.trnicely.net/misc/bpsw.ht
 or in the spec/bpsw directory of the Math::Primality source code. Without his
 research this module would not exist.
 
+The Math::GMPz module that interfaces with the GMP C-library was written and is 
+maintained by Sysiphus.  Without his work, our work would be impossible.
 
 =head1 SUPPORT
 
