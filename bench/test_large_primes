@@ -1,0 +1,21 @@
+#!/usr/bin/perl -w
+
+use strict;
+use Math::Primality qw/is_prime/;
+use Math::Pari qw/isprime/;
+use Benchmark qw/:all/;
+use Math::GMPz;
+
+my $magnitude = shift || 50;
+
+my $gmpz = Math::GMPz->new('1' . ('0'x$magnitude) );
+my $count = shift || 200;
+my @nums = map { "$_" } map { int(1+rand(9)) * $gmpz + int(1+rand(100)) } (1..100);
+
+print "Benchmarking Math::Primality version $Math::Primality::VERSION against Math::Pari version $Math::Pari::VERSION\n";
+print "Psuedorandom numbers of magnitude 10 ^ $magnitude\n";
+
+cmpthese($count,{
+    'is_prime' => sub { is_prime($_) for @nums },
+    'isprime' => sub { isprime($_) for @nums },
+});

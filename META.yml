@@ -1,24 +1,32 @@
 ---
-name: Math-Primality
-version: 0.04
+abstract: 'Check for primes with Perl'
 author:
-  - 'Jonathan Leto <jonathan@leto.net>'
-abstract: Advanced Primality Algorithms using GMP
-license: perl
-resources:
-  license: http://dev.perl.org/licenses/
+  - "Jonathan \"Duke\" Leto <jonathan@leto.net>"
 build_requires:
+  POSIX: 0
   Test::Exception: 0
   Test::More: 0
-requires:
-  Math::GMPz: 0.26
 configure_requires:
-  Module::Build: 0.34
-provides:
-  Math::Primality:
-    file: lib/Math/Primality.pm
-    version: 0.04
-generated_by: Module::Build version 0.34
+  ExtUtils::MakeMaker: 6.30
+  Module::Build: 0.38
+dynamic_config: 0
+generated_by: 'Dist::Zilla version 4.300020, CPAN::Meta::Converter version 2.120921'
+license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
   version: 1.4
+name: Math-Primality
+requires:
+  Carp: 0
+  Data::Dumper: 0
+  Exporter: 0
+  Math::GMPz: 0
+  base: 0
+  constant: 0
+  integer: 0
+  strict: 0
+  warnings: 0
+resources:
+  homepage: http://github.com/leto/math--primality
+  repository: http://github.com/leto/math--primality.git
+version: 0.05
