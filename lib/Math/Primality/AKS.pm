@@ -1,11 +1,13 @@
 package Math::Primality::AKS;
 {
-  $Math::Primality::AKS::VERSION = '0.05';
+  $Math::Primality::AKS::VERSION = '0.06';
 }
 use warnings;
 use strict;
 
 use Math::GMPz qw/:mpz/;
+use Math::Primality::BigPolynomial;
+
 use base 'Exporter';
 use Carp qw/croak/;
 
@@ -53,13 +55,13 @@ sub is_aks_prime($) {
 
     if(Rmpz_probab_prime_p($n, 5)) {
         my $i = Math::GMPz->new(1);
+        my $res = Math::GMPz->new(0);
 
         INNERLOOP: for ( ; Rmpz_cmp($n, $limit) <= 0; Rmpz_add_ui($i, $i, 1)) {
-        my $res = Math::GMPz->new(0);
-        Rmpz_powm($res, $n, $i, $r);
-        if (Rmpz_cmp_ui($res, 1) == 0) {
-            last OUTERLOOP;
-        }
+            Rmpz_powm($res, $n, $i, $r);
+                if (Rmpz_cmp_ui($res, 1) == 0) {
+                    last OUTERLOOP;
+                }
         }
 
     }
@@ -72,7 +74,7 @@ sub is_aks_prime($) {
 
     # Polynomial check
     my $a;
-    my $sqrtr = Math::GMPz->new(0);
+    my $sqrtr = Math::GMPz->new($r);
 
     Rmpz_sqrt($sqrtr, $r);
     my $polylimit = Math::GMPz->new(0);
@@ -82,19 +84,20 @@ sub is_aks_prime($) {
 
     my $intr = Rmpz_get_ui($r);
 
-    for($a = 1; Rmpz_cmp_ui($polylimit, $a) <= 0; $a++) {
+    for($a = 1; Rmpz_cmp_ui($polylimit, $a) >= 0; $a++) {
         debug "Checking at $a\n";
         my $final_size = Math::GMPz->new(0);
         Rmpz_mod($final_size, $n, $r);
-        my $compare = polynomial->new(Rmpz_get_ui($final_size));
-        $compare->setCoef(1, Rmpz_get_ui($final_size));
-        $compare->setCoef($a, 0);
-        my $res = polynomial->new($intr);
-        my $base = polynomial->new(1);
-        $base->setCoef($a, 0);
-        $base->setCoef(1, 1);
+        my $compare = Math::Primality::BigPolynomial->new(Rmpz_get_ui($final_size));
+        $compare->setCoef(Math::GMPz->new(1), $final_size);
+        $compare->setCoef(Math::GMPz->new($a), 0);
+        my $res = Math::Primality::BigPolynomial->new($intr);
+        my $base = Math::Primality::BigPolynomial->new(1);
+        $base->setCoef(Math::GMPz->new(0), $a);
+        $base->setCoef(Math::GMPz->new(1), 1);
 
-        mpz_poly_mod_power($res, $base, $n, $n, $intr);
+        Math::Primality::BigPolynomial::mpz_poly_mod_power($res, $base, $n, $n, $intr);
+
 
         if($res->isEqual($compare)) {
             debug "Found not prime at $a\n";
@@ -108,6 +111,7 @@ sub is_aks_prime($) {
 exp(0); # End of Math::Primality::AKS
 
 __END__
+
 =pod
 
 =head1 NAME
@@ -116,7 +120,7 @@ Math::Primality::AKS - Check for primality using the AKS (Agrawal-Kayal-Saxena) 
 
 =head1 VERSION
 
-version 0.05
+version 0.06
 
 =head1 SYNOPSIS
 
@@ -135,7 +139,9 @@ Math::Primality::AKS - Check for primes with AKS
 
 =head1 FUNCTIONS
 
-=head2 aks($n)
+=head2 is_aks_prime($n)
+
+Returns 1 if $n is an AKS prime, 0 if it is not.
 
 =head1 AUTHORS
 
@@ -144,11 +150,10 @@ Jonathan "Duke" Leto C<< <jonathan@leto.net> >>
 
 =head1 BUGS
 
-Please report any bugs or feature requests to C<bug-math-primality-aks at rt.cpan.org>,
-or through the web interface at
-L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Math::Primality::AKS>.  I will be 
-notified, and then you'll automatically be notified of progress on your bug as I
-make changes.
+Please report any bugs or feature requests to
+C<bug-math-primality-aks at rt.cpan.org>, or through the web interface at
+L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Math::Primality::AKS>.
+I will be notified, and then you'll automatically be notified of progress on your bug as I make changes.
 
 =head1 THANKS
 
@@ -181,4 +186,3 @@ This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
 
 =cut
-

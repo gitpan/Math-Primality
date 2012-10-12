@@ -1,6 +1,6 @@
 package Math::Primality;
 {
-  $Math::Primality::VERSION = '0.05';
+  $Math::Primality::VERSION = '0.06';
 }
 use warnings;
 use strict;
@@ -151,18 +151,9 @@ sub is_strong_pseudoprime($;$)
     }
 
     map {
-        # successively square $residue, $n is a strong psuedoprime
-        # if any of these are congruent to -1 (mod $n)
-        Rmpz_mul($residue,$residue,$residue);   # $residue = $residue * $residue
-        debug "$_: r=$residue" if DEBUG;
-
-        my $mod = GMP->new();
-        Rmpz_mod($mod, $residue, $n);           # $mod = $residue mod $n
-        debug "$_:$residue % $n = $mod " if DEBUG;
-        $mod = Rmpz_cmp($mod, $m);
-
-        if ($mod == 0) {
-            debug "$_:$mod == $m => spsp!" if DEBUG;
+        Rmpz_powm($residue, $residue, GMP->new(2), $n);
+        if (Rmpz_cmp($residue, $m) == 0) {
+            debug "$_:$residue == $m => spsp!" if DEBUG;
             return 1;
         }
     } ( 1 .. $s-1 );
@@ -418,6 +409,7 @@ sub prime_count($) {
 exp(0); # End of Math::Primality
 
 __END__
+
 =pod
 
 =head1 NAME
@@ -426,7 +418,7 @@ Math::Primality - Check for primes with Perl
 
 =head1 VERSION
 
-version 0.05
+version 0.06
 
 =head1 SYNOPSIS
 
@@ -696,4 +688,3 @@ This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
 
 =cut
-
