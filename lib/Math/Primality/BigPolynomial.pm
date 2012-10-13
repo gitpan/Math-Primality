@@ -1,6 +1,6 @@
 package Math::Primality::BigPolynomial;
 {
-  $Math::Primality::BigPolynomial::VERSION = '0.06';
+  $Math::Primality::BigPolynomial::VERSION = '0.07';
 }
 
 use strict;
@@ -190,7 +190,7 @@ Math::Primality::BigPolynomial - Big Polynomials
 
 =head1 VERSION
 
-version 0.06
+version 0.07
 
 =head1 NAME
 

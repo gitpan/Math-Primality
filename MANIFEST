@@ -24,6 +24,7 @@ spec/bpsw/trn.c
 spec/bpsw/trn.h
 t/00-load.t
 t/big_polynomial.t
+t/bigint.t
 t/boilerplate.t
 t/is_aks_prime.t
 t/is_prime.t

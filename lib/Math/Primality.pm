@@ -1,6 +1,6 @@
 package Math::Primality;
 {
-  $Math::Primality::VERSION = '0.06';
+  $Math::Primality::VERSION = '0.07';
 }
 use warnings;
 use strict;
@@ -87,8 +87,8 @@ sub is_pseudoprime($;$)
     return 0 unless $n;
     $base ||= 2;
     # we should check if we are passed a GMPz object
-    $base   = GMP->new($base);
-    $n      = GMP->new($n);
+    $base   = GMP->new("$base");
+    $n      = GMP->new("$n");
 
     my $m    = GMP->new();
     Rmpz_sub_ui($m, $n, 1);              # $m = $n - 1
@@ -120,9 +120,8 @@ sub is_strong_pseudoprime($;$)
     my ($n, $base) = @_;
 
     $base ||= 2;
-    # we should check if we are passed a GMPz object
-    $base   = GMP->new($base);
-    $n      = GMP->new($n);
+    $base   = GMP->new("$base");
+    $n      = GMP->new("$n");
 
     # unnecessary but faster if $n is even
     my $cmp = _check_two_and_even($n);
@@ -176,7 +175,7 @@ sub _find_s_d($)
 sub is_strong_lucas_pseudoprime($)
 {
     my ($n) = @_;
-    $n      = GMP->new($n);
+    $n      = GMP->new("$n");
     # we also need to handle all N < 3 and all even N 
     my $cmp = _check_two_and_even($n);
     return $cmp if $cmp != 2;
@@ -331,7 +330,7 @@ sub _check_two_and_even($) {
 
 sub is_prime($) {
     my $n = shift;
-    $n = GMP->new($n);
+    $n = GMP->new("$n");
 
     if (Rmpz_cmp_ui($n, 2) == -1) {
         return 0;
@@ -354,7 +353,8 @@ sub is_prime($) {
 
 
 sub next_prime($) {
-  my $n = GMP->new($_[0]);
+  my $n = shift;
+  $n = GMP->new("$n");
   my $cmp = Rmpz_cmp_ui($n, 2 ); #check if $n < 2
   if ($cmp < 0) {
     return GMP->new(2);
@@ -373,7 +373,8 @@ sub next_prime($) {
 
 
 sub prev_prime($) {
-  my $n = GMP->new($_[0]);
+  my $n = shift;
+  $n = GMP->new("$n");
   my $cmp = Rmpz_cmp_ui($n, 3);   # compare N with 3
   if ($cmp == 0) {                # N = 3
     return GMP->new(2);
@@ -395,8 +396,10 @@ sub prev_prime($) {
 
 
 sub prime_count($) {
-  my $n = GMP->new($_[0]); # check if $n needs to be a Math::GMPz object
+  my $n      = shift;
+  $n         = GMP->new("$n");
   my $primes = 0;
+
   return 0 if $n <= 1;
 
   for (my $i = GMP->new(0); Rmpz_cmp($i, $n) <= 0; Rmpz_add_ui($i, $i, 1)) {
@@ -418,7 +421,7 @@ Math::Primality - Check for primes with Perl
 
 =head1 VERSION
 
-version 0.06
+version 0.07
 
 =head1 SYNOPSIS
 

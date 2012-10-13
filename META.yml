@@ -6,6 +6,7 @@ build_requires:
   POSIX: 0
   Test::Exception: 0
   Test::More: 0
+  bigint: 0
 configure_requires:
   ExtUtils::MakeMaker: 6.30
   Module::Build: 0.38
@@ -29,4 +30,4 @@ requires:
 resources:
   homepage: http://github.com/leto/math--primality
   repository: http://github.com/leto/math--primality.git
-version: 0.06
+version: 0.07
