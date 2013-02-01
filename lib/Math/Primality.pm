@@ -1,6 +1,6 @@
 package Math::Primality;
 {
-  $Math::Primality::VERSION = '0.07';
+  $Math::Primality::VERSION = '0.08';
 }
 use warnings;
 use strict;
@@ -397,14 +397,17 @@ sub prev_prime($) {
 
 sub prime_count($) {
   my $n      = shift;
-  $n         = GMP->new("$n");
+  $n = GMP->new("$n") unless ref($n) eq 'Math::GMPz';
   my $primes = 0;
 
   return 0 if $n <= 1;
 
-  for (my $i = GMP->new(0); Rmpz_cmp($i, $n) <= 0; Rmpz_add_ui($i, $i, 1)) {
+  do { $primes++ if $n >= $_ } for (2,3,5,7,11,13,17,19,23,29);
+  for (my $i = GMP->new(31); Rmpz_cmp($i, $n) <= 0; Rmpz_add_ui($i, $i, 2)) {
+    next unless 1 == Rmpz_gcd_ui($Math::GMPz::NULL, $i, 3234846615);
     $primes++ if is_prime($i);
   }
+
   return $primes;
 }
 
@@ -421,7 +424,7 @@ Math::Primality - Check for primes with Perl
 
 =head1 VERSION
 
-version 0.07
+version 0.08
 
 =head1 SYNOPSIS
 

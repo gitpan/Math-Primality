@@ -32,14 +32,14 @@ my %WriteMakefileArgs = (
     "Carp" => 0,
     "Data::Dumper" => 0,
     "Exporter" => 0,
-    "Math::GMPz" => 0,
+    "Math::GMPz" => "0.34",
     "base" => 0,
     "constant" => 0,
     "integer" => 0,
     "strict" => 0,
     "warnings" => 0
   },
-  "VERSION" => "0.07",
+  "VERSION" => "0.08",
   "test" => {
     "TESTS" => "t/*.t"
   }

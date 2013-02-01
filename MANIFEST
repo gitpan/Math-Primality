@@ -24,10 +24,10 @@ spec/bpsw/trn.c
 spec/bpsw/trn.h
 t/00-load.t
 t/big_polynomial.t
-t/bigint.t
 t/boilerplate.t
 t/is_aks_prime.t
 t/is_prime.t
+t/is_prime_bigint.t
 t/is_pseudoprime.t
 t/is_strong_lucas_pseudoprime.t
 t/is_strong_pseudoprime.t

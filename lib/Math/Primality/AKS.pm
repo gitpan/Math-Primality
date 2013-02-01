@@ -1,6 +1,6 @@
 package Math::Primality::AKS;
 {
-  $Math::Primality::AKS::VERSION = '0.07';
+  $Math::Primality::AKS::VERSION = '0.08';
 }
 use warnings;
 use strict;
@@ -120,7 +120,7 @@ Math::Primality::AKS - Check for primality using the AKS (Agrawal-Kayal-Saxena) 
 
 =head1 VERSION
 
-version 0.07
+version 0.08
 
 =head1 SYNOPSIS
 
